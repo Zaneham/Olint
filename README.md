@@ -1,6 +1,6 @@
 ﻿# olint
 
-Think [clippy](https://doc.rust-lang.org/clippy/) for OCaml â€” which is
+Think [clippy](https://doc.rust-lang.org/clippy/) for OCaml which is
 only fair, given that Rust's original compiler was written in OCaml.
 We're simply returning the favour.
 
