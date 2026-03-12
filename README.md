@@ -114,7 +114,7 @@ Every diagnostic has a stable ID (`W001`, `W003`). A developer in
 Osaka can Google "olint W003" regardless of what language the message
 is in. Architecture lifted wholesale from
 [BarraCUDA](https://github.com/Zaneham/barracuda)'s `bc_err.c`, because
-good ideas deserve to be stolen.
+why not.
 
 ```
 olint --lang lang/fr.txt src/
