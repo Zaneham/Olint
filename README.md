@@ -78,7 +78,7 @@ is the ability to say "yes, I know, shut up about it."
 
 ```ocaml
 (* olint:disable W001 *)
-open Printf  (* no warning â€” you've made your choice *)
+open Printf  (* no warning ” you've made your choice *)
 (* olint:enable W001 *)
 
 (* olint:disable-next-line W005 *)
@@ -116,16 +116,6 @@ is in. Architecture lifted wholesale from
 [BarraCUDA](https://github.com/Zaneham/barracuda)'s `bc_err.c`, because
 why not.
 
-```
-olint --lang lang/fr.txt src/
-```
-
-Translation file format (one insult per line):
-
-```
-W001=open inutilisÃ©: `open %s` n'est pas rÃ©fÃ©rencÃ©
-W001.hint=supprimez le open ou utilisez un nom qualifiÃ©
-```
 
 English is compiled in as the default, largely because the
 errors were written in English first and we haven't got round
