@@ -144,5 +144,5 @@ to the others yet. PR's are accepted for other languages. Spanish and French spe
 
 ## License
 
-Apache 2.0 â€” see [LICENSE](LICENSE).
+Apache 2.0 see [LICENSE](LICENSE).
 
