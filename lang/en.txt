@@ -1,0 +1,48 @@
+# lang/en.txt — English (default)
+# Format: KEY=message text
+# Keys: W001, W001.hint, W002, etc.
+# This file exists as a reference. English is compiled in.
+# Override any message by creating a new lang file.
+
+# ---- W001: unused open ----
+W001=unused open: `open %s` is not referenced
+W001.hint=remove the open or use a qualified name
+
+# ---- W002: redundant match ----
+W002=redundant match: every arm returns its pattern unchanged
+W002.hint=replace the entire match with the scrutinee
+
+# ---- W003: list length compare ----
+W003=List.length in comparison is O(n); compare against [] instead
+W003.hint=use `xs <> []` or `xs = []` for emptiness checks
+
+# ---- W004: list nth ----
+W004=List.nth is O(n) and partial; use pattern matching instead
+W004.hint=if you need indexing, consider Array.t
+
+# ---- W005: partial function ----
+W005=%s.%s may raise; consider a safe alternative
+W005.hint=use %s.%s_opt or pattern matching
+
+# ---- W006: naming ----
+W006=naming: `%s` should be snake_case
+W006.mod=naming: module `%s` should be PascalCase
+W006.typ=naming: type `%s` should be snake_case
+
+# ---- W008: bool redundancy ----
+W008=`if x then true else false` is redundant; use `x` directly
+W008.neg=`if x then false else true` is redundant; use `not x`
+W008.hint=remove the if/else and use the condition directly
+
+# ---- W009: eta reduction ----
+W009=`fun x -> f x` can be simplified to `f`
+W009.hint=remove the wrapper function, pass f directly
+
+# ---- W010: exception control flow ----
+W010=%s.%s inside try block; consider the _opt variant
+W010.hint=use %s.%s%s instead of catching the exception
+
+# ---- E000: internal / syntax ----
+E000=syntax error: %s
+E000.int=internal error: %s
+E000.hint=fix the syntax error first
