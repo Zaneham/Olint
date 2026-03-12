@@ -119,7 +119,7 @@ why not.
 
 English is compiled in as the default, largely because the
 errors were written in English first and we haven't got round
-to the others yet. PR's are accepted for other languages. Spanish and French speakers are warned that once my Duolingo hits 60, badly translated error messages are coming your way (so get in before then)
+to the others yet. PR's are accepted for other languages. Spanish and French speakers are warned that once my Duolingo hits 60 days, badly translated error messages are coming your way (so get in before then)
 
 Adding a new language is just as simple as copying file in `lang` and then removing all the English, add your own language.
 
