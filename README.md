@@ -62,11 +62,11 @@ of disappointment.
 | W001 | unused-open | W | `open Foo` where Foo contributes nothing to proceedings |
 | W002 | redundant-match | W | Identity match every arm returns its pattern, achieving nothing with great ceremony |
 | W003 | list-length-compare | W | `List.length xs > 0` is O(n); traversing the entire list to check if it exists |
-| W004 | list-nth | W | `List.nth` â€” indexing into a linked list, the data structure equivalent of sending a letter to your neighbour |
-| W005 | partial-function | W | `List.hd` without a guard â€” works fine until the list is empty, at which point: scenes |
+| W004 | list-nth | W | `List.nth`  indexing into a linked list, the data structure equivalent of sending a letter to your neighbour |
+| W005 | partial-function | W | `List.hd` without a guard  works fine until the list is empty, at which point: scenes |
 | W006 | naming-convention | I | Enforces snake\_case for values and PascalCase for modules, because convention is all that stands between us and barbarism |
-| W008 | bool-redundancy | W | `if x then true else false` â€” the boolean identity crisis |
-| W009 | eta-reduce | I | `fun x -> f x` â€” the unnecessary introduction. "Let me introduce you to someone you've already met" |
+| W008 | bool-redundancy | W | `if x then true else false` â the boolean identity crisis |
+| W009 | eta-reduce | I | `fun x -> f x` the unnecessary introduction. "Let me introduce you to someone you've already met" |
 | W010 | exn-control-flow | I | `try Hashtbl.find ... with Not_found` when `find_opt` is right there |
 
 Run `olint --list-rules` for the full catalogue of grievances.
