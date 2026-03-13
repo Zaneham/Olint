@@ -60,7 +60,7 @@ of disappointment.
 | ID | Name | Sev | What it objects to |
 |----|------|-----|--------------------|
 | W001 | unused-open | W | `open Foo` where Foo contributes nothing to proceedings |
-| W002 | redundant-match | W | Identity match â€” every arm returns its pattern, achieving nothing with great ceremony |
+| W002 | redundant-match | W | Identity match every arm returns its pattern, achieving nothing with great ceremony |
 | W003 | list-length-compare | W | `List.length xs > 0` is O(n); traversing the entire list to check if it exists |
 | W004 | list-nth | W | `List.nth` â€” indexing into a linked list, the data structure equivalent of sending a letter to your neighbour |
 | W005 | partial-function | W | `List.hd` without a guard â€” works fine until the list is empty, at which point: scenes |
