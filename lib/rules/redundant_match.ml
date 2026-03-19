@@ -31,7 +31,7 @@ let is_id_match = function
     ) cases
   | _ -> false
 
-let chk ast =
+let chk _src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
@@ -43,6 +43,7 @@ let chk ast =
            msg  = I18n.msg "W002";
            loc  = e.pexp_loc;
            hint = I18n.hint "W002";
+           fix  = [];
          } :: !diags
        | _ -> ());
       default_iterator.expr self e);

@@ -38,7 +38,7 @@ let list_rules () =
   ) Olint_lib.Olint.rules;
   0
 
-let run paths min_sev lang fmt do_list =
+let run paths min_sev lang fmt do_list do_apply =
   if do_list then list_rules ()
   else begin
     (match lang with
@@ -48,7 +48,18 @@ let run paths min_sev lang fmt do_list =
     if files = [] then (
       Printf.eprintf "olint: no .ml files found\n";
       2
-    ) else
+    ) else if do_apply then
+      let total = List.fold_left (fun acc f ->
+        let n = Olint_lib.Olint.apply_file f in
+        if n > 0 then
+          Printf.printf "%s: %d fix%s applied\n" f n
+            (if n = 1 then "" else "es");
+        acc + n
+      ) 0 files in
+      Printf.printf "total: %d fix%s applied\n" total
+        (if total = 1 then "" else "es");
+      0
+    else
       let ds = Olint_lib.Olint.lint_all files in
       let ds = List.filter (fun d ->
         Olint_lib.Diagnostic.sev_rank d.Olint_lib.Diagnostic.sev >= min_sev
@@ -100,6 +111,10 @@ let do_list =
   let doc = "List all registered rules and exit" in
   Arg.(value & flag & info ["list-rules"] ~doc)
 
+let do_apply =
+  let doc = "Apply auto-fixes in-place and exit" in
+  Arg.(value & flag & info ["apply"] ~doc)
+
 let cmd =
   let doc = "a linter for OCaml" in
   let info = Cmd.info "olint" ~version:"0.1.0" ~doc
@@ -115,6 +130,9 @@ let cmd =
             — suppress next line only\n  \
             (* olint:enable W001 *)            \
             — re-enable";
+      `S "AUTO-FIX";
+      `P "Use $(b,--apply) to automatically fix issues in-place. \
+          Currently supports W008 (bool redundancy) and W009 (eta reduce).";
       `S "LOCALISATION";
       `P "Use --lang to load a translation file. Format: \
           'W001=message text', one per line.";
@@ -122,6 +140,6 @@ let cmd =
       `P "Report bugs at https://github.com/user/olint/issues";
     ]
   in
-  Cmd.v info Term.(const run $ paths $ sev $ lang $ fmt $ do_list)
+  Cmd.v info Term.(const run $ paths $ sev $ lang $ fmt $ do_list $ do_apply)
 
 let () = exit (Cmd.eval' cmd)

@@ -35,7 +35,7 @@ let chk_lid lid =
     if is_partial m f then Some (m, f) else None
   | _ -> None
 
-let chk ast =
+let chk _src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
@@ -53,6 +53,7 @@ let chk ast =
                         Some (Printf.sprintf
                           (Scanf.format_from_string fmt "%s%s") m f)
                       | None -> None);
+              fix  = [];
             } :: !diags
           | None -> ())
        | _ -> ());

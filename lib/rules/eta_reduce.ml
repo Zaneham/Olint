@@ -7,34 +7,37 @@
 open Parsetree
 open Ast_iterator
 
-(* detect `fun x -> f x` where x is a simple variable *)
-let is_eta e =
+(* extract the function expression from `f x` *)
+let eta_fn e =
   match e.pexp_desc with
   | Pexp_function (params, _, Pfunction_body body) ->
     (match params with
      | [{ pparam_desc = Pparam_val (Asttypes.Nolabel, None,
             { ppat_desc = Ppat_var { txt = v; _ }; _ }); _ }] ->
-       (* body must be `f x` where x matches the parameter *)
        (match body.pexp_desc with
-        | Pexp_apply (_, [(Asttypes.Nolabel,
+        | Pexp_apply (fn, [(Asttypes.Nolabel,
             { pexp_desc = Pexp_ident { txt = Longident.Lident v'; _ }; _ })]) ->
-          String.equal v v'
-        | _ -> false)
-     | _ -> false)
-  | _ -> false
+          if String.equal v v' then Some fn else None
+        | _ -> None)
+     | _ -> None)
+  | _ -> None
 
-let chk ast =
+let chk src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
-      (if is_eta e then
+      (match eta_fn e with
+       | Some fn ->
+         let ft = Diagnostic.span src fn.pexp_loc in
          diags := { Diagnostic.
            rid  = "W009";
            sev  = Info;
            msg  = I18n.msg "W009";
            loc  = e.pexp_loc;
            hint = I18n.hint "W009";
-         } :: !diags);
+           fix  = [{ fix_loc = e.pexp_loc; fix_txt = ft }];
+         } :: !diags
+       | None -> ());
       default_iterator.expr self e);
   } in
   it.structure it ast;

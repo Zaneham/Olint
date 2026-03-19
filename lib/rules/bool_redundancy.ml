@@ -12,27 +12,32 @@ let is_bool_lit e v =
   | Pexp_construct ({ txt = Longident.Lident s; _ }, None) -> s = v
   | _ -> false
 
-let chk ast =
+let chk src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
       (match e.pexp_desc with
-       | Pexp_ifthenelse (_, then_e, Some else_e) ->
+       | Pexp_ifthenelse (cond, then_e, Some else_e) ->
          if is_bool_lit then_e "true" && is_bool_lit else_e "false" then
+           let ct = Diagnostic.span src cond.pexp_loc in
            diags := { Diagnostic.
              rid  = "W008";
              sev  = Warn;
              msg  = I18n.msg "W008";
              loc  = e.pexp_loc;
              hint = I18n.hint "W008";
+             fix  = [{ fix_loc = e.pexp_loc; fix_txt = ct }];
            } :: !diags
          else if is_bool_lit then_e "false" && is_bool_lit else_e "true" then
+           let ct = Diagnostic.span src cond.pexp_loc in
            diags := { Diagnostic.
              rid  = "W008";
              sev  = Warn;
              msg  = I18n.msg "W008.neg";
              loc  = e.pexp_loc;
              hint = I18n.hint "W008";
+             fix  = [{ fix_loc = e.pexp_loc;
+                        fix_txt = "not (" ^ ct ^ ")" }];
            } :: !diags
        | _ -> ());
       default_iterator.expr self e);

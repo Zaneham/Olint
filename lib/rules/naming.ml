@@ -24,7 +24,7 @@ let is_pascal s =
   String.length s > 0 &&
   match s.[0] with 'A'..'Z' -> true | _ -> false
 
-let chk ast =
+let chk _src ast =
   let diags = ref [] in
   let it = { default_iterator with
     (* value bindings: must be snake_case *)
@@ -37,6 +37,7 @@ let chk ast =
            msg  = Printf.sprintf (Scanf.format_from_string (I18n.msg "W006") "%s") name;
            loc  = loc;
            hint = None;
+           fix  = [];
          } :: !diags
        | _ -> ());
       default_iterator.value_binding self vb);
@@ -50,6 +51,7 @@ let chk ast =
            msg  = Printf.sprintf (Scanf.format_from_string (I18n.msg "W006.mod") "%s") name;
            loc  = mb.pmb_name.loc;
            hint = None;
+           fix  = [];
          } :: !diags
        | _ -> ());
       default_iterator.module_binding self mb);
@@ -63,6 +65,7 @@ let chk ast =
           msg  = Printf.sprintf (Scanf.format_from_string (I18n.msg "W006.typ") "%s") name;
           loc  = td.ptype_name.loc;
           hint = None;
+          fix  = [];
         } :: !diags;
       default_iterator.type_declaration self td);
   } in

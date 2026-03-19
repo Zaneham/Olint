@@ -45,7 +45,7 @@ let lint path =
     let lb = Lexing.from_string src in
     Location.init lb path;
     let ast = Parse.implementation lb in
-    let ds = List.concat_map (fun r -> r.Rule.chk ast) rules in
+    let ds = List.concat_map (fun r -> r.Rule.chk src ast) rules in
     let ds = Suppress.filter src ds in
     List.sort Diagnostic.cmp ds
   with
@@ -61,6 +61,7 @@ let lint path =
                 (Printexc.to_string e);
        loc  = { loc with loc_start = { loc.loc_start with pos_fname = path } };
        hint = I18n.hint "E000";
+       fix  = [];
      }]
   | e ->
     [{ Diagnostic.
@@ -70,11 +71,48 @@ let lint path =
                 (Printexc.to_string e);
        loc  = Location.{ none with loc_start = { none.loc_start with pos_fname = path } };
        hint = None;
+       fix  = [];
      }]
 
 (* batch lint, sorted across all files *)
 let lint_all paths =
   let ds = List.concat_map lint paths in
   List.sort Diagnostic.cmp ds
+
+(* apply text replacements bottom-to-top by byte offset.
+   Working backwards preserves earlier offsets — the one
+   trick compilers and text editors agree on. *)
+let patch src fixes =
+  let fs = List.sort (fun a b ->
+    compare
+      b.Diagnostic.fix_loc.loc_start.pos_cnum
+      a.Diagnostic.fix_loc.loc_start.pos_cnum
+  ) fixes in
+  let buf = Buffer.create (String.length src) in
+  Buffer.add_string buf src;
+  List.iter (fun f ->
+    let s = f.Diagnostic.fix_loc.loc_start.pos_cnum in
+    let e = f.Diagnostic.fix_loc.loc_end.pos_cnum in
+    let cur = Buffer.contents buf in
+    Buffer.clear buf;
+    Buffer.add_string buf (String.sub cur 0 s);
+    Buffer.add_string buf f.Diagnostic.fix_txt;
+    Buffer.add_string buf (String.sub cur e (String.length cur - e))
+  ) fs;
+  Buffer.contents buf
+
+(* lint a file and apply all fixes in-place. Returns fix count. *)
+let apply_file path =
+  let ds = lint path in
+  let fixes = List.concat_map (fun (d : Diagnostic.t) -> d.fix) ds in
+  if fixes = [] then 0
+  else begin
+    let src = slurp path in
+    let out = patch src fixes in
+    let oc = open_out_bin path in
+    output_string oc out;
+    close_out oc;
+    List.length fixes
+  end
 
 let load_lang = I18n.load

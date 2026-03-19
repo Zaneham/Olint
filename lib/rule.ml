@@ -2,7 +2,7 @@
    We keep the interface minimal because every abstraction
    is a potential regret. *)
 
-type chk = Parsetree.structure -> Diagnostic.t list
+type chk = string -> Parsetree.structure -> Diagnostic.t list
 
 type t = {
   id   : string;     (* "W001" *)

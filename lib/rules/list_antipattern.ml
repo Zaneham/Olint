@@ -31,7 +31,7 @@ let cmp_ops = ["="; "<>"; ">"; "<"; ">="; "<="]
 
 let is_cmp op = List.mem op cmp_ops
 
-let chk ast =
+let chk _src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
@@ -47,6 +47,7 @@ let chk ast =
            msg  = I18n.msg "W003";
            loc  = e.pexp_loc;
            hint = I18n.hint "W003";
+           fix  = [];
          } :: !diags
        (* W004: List.nth applied to args *)
        | Pexp_apply (
@@ -58,6 +59,7 @@ let chk ast =
            msg  = I18n.msg "W004";
            loc  = pexp_loc;
            hint = I18n.hint "W004";
+           fix  = [];
          } :: !diags
        | _ -> ());
       default_iterator.expr self e);
@@ -70,12 +72,12 @@ let rules : Rule.t list = [
     name = "list-length-compare";
     desc = "List.length in comparisons is O(n)";
     sev  = Warn;
-    chk  = (fun ast -> List.filter (fun d -> d.Diagnostic.rid = "W003") (chk ast));
+    chk  = (fun src ast -> List.filter (fun d -> d.Diagnostic.rid = "W003") (chk src ast));
   };
   { id   = "W004";
     name = "list-nth";
     desc = "List.nth is almost always wrong";
     sev  = Warn;
-    chk  = (fun ast -> List.filter (fun d -> d.Diagnostic.rid = "W004") (chk ast));
+    chk  = (fun src ast -> List.filter (fun d -> d.Diagnostic.rid = "W004") (chk src ast));
   };
 ]

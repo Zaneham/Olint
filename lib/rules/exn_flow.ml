@@ -29,7 +29,7 @@ let chk_lid lid =
   | _ -> None
 
 (* is there a call to a function with _opt inside a try block? *)
-let chk ast =
+let chk _src ast =
   let diags = ref [] in
   let it = { default_iterator with
     expr = (fun self e ->
@@ -57,6 +57,7 @@ let chk ast =
                            (Scanf.format_from_string fmt "%s%s%s")
                            m f "_opt")
                        | None -> None);
+                     fix  = [];
                    } :: !diags
                  | None -> ())
               | _ -> ());

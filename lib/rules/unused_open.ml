@@ -44,7 +44,7 @@ let lid_name = function
   | Longident.Lapply (_, _) -> ""
 
 (* find opens, cross-reference with usage *)
-let chk ast =
+let chk _src ast =
   let used = grab ast in
   let diags = ref [] in
   List.iter (fun si ->
@@ -58,6 +58,7 @@ let chk ast =
           msg  = Printf.sprintf (Scanf.format_from_string (I18n.msg "W001") "%s") name;
           loc  = loc;
           hint = I18n.hint "W001";
+          fix  = [];
         } :: !diags
     | _ -> ()
   ) ast;

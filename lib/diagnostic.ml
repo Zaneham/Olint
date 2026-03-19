@@ -7,13 +7,22 @@ type sev =
   | Warn
   | Info
 
+type fix = { fix_loc : Location.t; fix_txt : string }
+
 type t = {
   rid  : string;
   sev  : sev;
   msg  : string;
   loc  : Location.t;
   hint : string option;
+  fix  : fix list;
 }
+
+(* extract source text at a location — the surgical scissors *)
+let span src loc =
+  let s = loc.Location.loc_start.Lexing.pos_cnum in
+  let e = loc.Location.loc_end.Lexing.pos_cnum in
+  String.sub src s (e - s)
 
 let sev_rank = function
   | Err  -> 2
@@ -37,10 +46,11 @@ let cmp a b =
 let pp d =
   let p = d.loc.loc_start in
   let col = p.pos_cnum - p.pos_bol + 1 in
+  let tag = if d.fix <> [] then " [fixable]" else "" in
   let base =
-    Printf.sprintf "%s:%d:%d [%s] %s"
+    Printf.sprintf "%s:%d:%d [%s] %s%s"
       p.pos_fname p.pos_lnum col
-      d.rid d.msg
+      d.rid d.msg tag
   in
   match d.hint with
   | None   -> base
@@ -67,10 +77,21 @@ let to_json d =
     | None   -> ""
     | Some h -> Printf.sprintf ",\"hint\":\"%s\"" (esc h)
   in
+  let fix_f = match d.fix with
+    | [] -> ""
+    | fs ->
+      let fj f =
+        Printf.sprintf "{\"start\":%d,\"end\":%d,\"text\":\"%s\"}"
+          f.fix_loc.loc_start.pos_cnum
+          f.fix_loc.loc_end.pos_cnum
+          (esc f.fix_txt)
+      in
+      ",\"fix\":[" ^ String.concat "," (List.map fj fs) ^ "]"
+  in
   Printf.sprintf
-    "{\"file\":\"%s\",\"line\":%d,\"col\":%d,\"rule\":\"%s\",\"severity\":\"%s\",\"message\":\"%s\"%s}"
+    "{\"file\":\"%s\",\"line\":%d,\"col\":%d,\"rule\":\"%s\",\"severity\":\"%s\",\"message\":\"%s\"%s%s}"
     (esc p.pos_fname) p.pos_lnum col
-    d.rid (sev_str d.sev) (esc d.msg) hint_f
+    d.rid (sev_str d.sev) (esc d.msg) hint_f fix_f
 
 (* JSON array of diagnostics *)
 let to_json_all ds =

@@ -23,6 +23,21 @@ let cnt rid ds =
 
 let fpath f = "test/fixtures/" ^ f
 
+(* slurp helper for comparing file contents *)
+let slurp path =
+  let ic = open_in_bin path in
+  let n = in_channel_length ic in
+  let s = Bytes.create n in
+  really_input ic s 0 n;
+  close_in ic;
+  Bytes.to_string s
+
+(* write helper for test setup *)
+let spit path s =
+  let oc = open_out_bin path in
+  output_string oc s;
+  close_out oc
+
 let () =
   Printf.printf "olint test suite\n";
   Printf.printf "================\n\n";
@@ -77,6 +92,32 @@ let () =
   Printf.printf "\n[clean] no false positives\n";
   let ds = Olint_lib.Olint.lint (fpath "clean.ml") in
   chk "zero diagnostics on clean file" (ds = []);
+
+  (* autofix: fix fields populated *)
+  Printf.printf "\n[autofix] fix fields\n";
+  let ds = Olint_lib.Olint.lint (fpath "autofix.ml") in
+  let fixable = List.filter (fun (d : Olint_lib.Diagnostic.t) -> d.fix <> []) ds in
+  chk "W008 fixes populated" (List.exists (fun (d : Olint_lib.Diagnostic.t) ->
+    d.rid = "W008" && d.fix <> []) ds);
+  chk "W009 fix populated" (List.exists (fun (d : Olint_lib.Diagnostic.t) ->
+    d.rid = "W009" && d.fix <> []) ds);
+  chk "three fixable diagnostics" (List.length fixable = 3);
+
+  (* autofix: apply produces expected output *)
+  Printf.printf "\n[autofix] apply\n";
+  let src = slurp (fpath "autofix.ml") in
+  let tmp = fpath "autofix_tmp.ml" in
+  spit tmp src;
+  let n = Olint_lib.Olint.apply_file tmp in
+  chk "three fixes applied" (n = 3);
+  let got = slurp tmp in
+  let exp = slurp (fpath "autofix_expected.ml") in
+  chk "output matches expected" (got = exp);
+
+  (* autofix: idempotent — second pass applies nothing *)
+  let n2 = Olint_lib.Olint.apply_file tmp in
+  chk "idempotent (0 on re-run)" (n2 = 0);
+  Sys.remove tmp;
 
   (* summary *)
   Printf.printf "\n================\n";

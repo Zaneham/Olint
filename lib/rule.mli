@@ -1,6 +1,6 @@
 (* rule.mli — public interface for lint rules *)
 
-type chk = Parsetree.structure -> Diagnostic.t list
+type chk = string -> Parsetree.structure -> Diagnostic.t list
 
 type t = {
   id   : string;
